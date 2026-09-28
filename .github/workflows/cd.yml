@@ -1,0 +1,36 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - 'v*' # Запуск при пуше тега, начинающегося с v
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Нужно для создания релиза
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+
+    - name: Build
+      run: cmake --build build --parallel
+
+    - name: Package (опционально)
+      run: |
+        cd build
+        cpack -G DEB # Если у вас настроен CPack
+        cpack -G RPM
+
+    - name: Upload Release Assets
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          build/*.deb
+          build/*.rpm
+          build/bin/ft_ping

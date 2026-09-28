@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ] # Запуск при пуше в main
+  pull_request:
+    branches: [ main ] # Запуск при создании PR в main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --parallel
+
+    - name: Test
+      run: ctest --test-dir build --output-on-failure
