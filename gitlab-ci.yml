@@ -1,0 +1,61 @@
+stages:
+  - build
+  - package_deb
+  - package_rpm
+
+variables:
+  BUILD_DIR: build
+
+build:
+  stage: build
+  image: ubuntu:24.04
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends cmake ninja-build gcc make
+  script:
+    - test -f LICENSE
+    - cmake -S . -B "$BUILD_DIR" -G Ninja -DCMAKE_BUILD_TYPE=Release
+    - cmake --build "$BUILD_DIR" --parallel
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - build/
+
+package_deb:
+  stage: package_deb
+  image: ubuntu:24.04
+  needs:
+    - job: build
+      artifacts: true
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends cmake dpkg-dev fakeroot
+  script:
+    - test -f LICENSE
+    - mkdir -p "$BUILD_DIR/packages"
+    - cpack --config "$BUILD_DIR/CPackConfig.cmake" -G DEB
+        -D CPACK_PACKAGE_DIRECTORY="$BUILD_DIR/packages"
+  artifacts:
+    name: "${CI_PROJECT_NAME}-${CI_COMMIT_SHORT_SHA}-deb"
+    expire_in: 1 month
+    paths:
+      - build/packages/*.deb
+
+package_rpm:
+  stage: package_rpm
+  image: rockylinux:9
+  needs:
+    - job: build
+      artifacts: true
+  before_script:
+    - dnf install -y cmake gcc gcc-c++ make rpm-build
+  script:
+    - test -f LICENSE
+    - mkdir -p "$BUILD_DIR/packages"
+    - cpack --config "$BUILD_DIR/CPackConfig.cmake" -G RPM
+        -D CPACK_PACKAGE_DIRECTORY="$BUILD_DIR/packages"
+  artifacts:
+    name: "${CI_PROJECT_NAME}-${CI_COMMIT_SHORT_SHA}-rpm"
+    expire_in: 1 month
+    paths:
+      - build/packages/*.rpm

@@ -1,19 +1,77 @@
-cmake_minimum_required(VERSION 4.2.3)
+cmake_minimum_required(VERSION 3.30.5)
 
-set(PROJECT_NAME ft_ping)
-project(${PROJECT_NAME})
+project(ft_ping
+    VERSION 1.0.0
+    LANGUAGES C
+)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_C_EXTENSIONS ON)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib) 
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE})
-
-
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 set(SRC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-include_directories(${SRC})
 
-add_subdirectory(src)
-add_subdirectory(files)
+set(HEADER_FILES ${SRC}/ft_ping.h)
+set(SRC_FILES ${SRC}/utils.c ${SRC}/verbose.c ${SRC}/parse.c ${SRC}/recv.c ${SRC}/ft_ping.c)
+
+
+add_executable(ft_ping 
+    ${HEADER_FILES}
+    ${SRC_FILES}
+)
+
+target_include_directories(ft_ping PRIVATE
+    "${SRC}"
+    "/usr/include"
+)
+
+target_compile_options(ft_ping PRIVATE
+    "SHELL:-include sys/time.h"
+    "SHELL:-include netdb.h"
+    "SHELL:-include netinet/ip.h"
+    "SHELL:-include netinet/icmp6.h"
+)
+
+if(UNIX AND NOT APPLE)
+    target_link_libraries(ft_ping PRIVATE m)
+endif()
+
+include(GNUInstallDirs)
+
+install(TARGETS ft_ping
+    RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
+)
+
+install(FILES
+    files/checksum.png
+    files/make.png
+    files/makedebug.png
+    DESTINATION "${CMAKE_INSTALL_DATADIR}/ft_ping"
+)
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+    install(FILES LICENSE
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/ft-ping"
+    )
+endif()
+
+set(CPACK_PACKAGE_NAME "ft-ping")
+set(CPACK_PACKAGE_VENDOR "ft_ping project")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Simple ping implementation")
+set(CPACK_PACKAGE_CONTACT "maintainer@example.com")
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_GENERATOR "DEB;RPM")
+
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "ft_ping maintainer")
+set(CPACK_DEBIAN_PACKAGE_SECTION "net")
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://example.com/ft_ping")
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+
+set(CPACK_RPM_PACKAGE_LICENSE "Apache-2.0")
+set(CPACK_RPM_PACKAGE_GROUP "Applications/Internet")
+set(CPACK_RPM_PACKAGE_URL "https://example.com/ft_ping")
+set(CPACK_RPM_FILE_NAME RPM-DEFAULT)
+
+include(CPack)
