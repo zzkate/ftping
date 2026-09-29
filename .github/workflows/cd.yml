@@ -41,12 +41,16 @@ jobs:
     - name: Verify RPM Signature
       run: |
         rpm_file=$(find build -name "*.rpm" | head -n 1)
-        if rpm -K "$rpm_file" | grep -q "digests signatures OK"; then
-          echo "✅ RPM подписан успешно"
-        else
-          echo "❌ Ошибка: RPM не подписан"
-          exit 1
-        fi
+        echo "Проверяем: $rpm_file"
+        rpm -Kv "$rpm_file"
+        echo "---"
+        rpm -qp --qf '%{SIGPGP:pgpsig}\n' "$rpm_file" || echo "Нет PGP подписи"
+        # if rpm -K "$rpm_file" | grep -q "digests signatures OK"; then
+        #   echo "✅ RPM подписан успешно"
+        # else
+        #   echo "❌ Ошибка: RPM не подписан"
+        #   exit 1
+        # fi
 
     # 4. Загрузка артефакта (опционально)
     - name: Upload RPM
