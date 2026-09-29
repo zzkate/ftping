@@ -18,6 +18,7 @@ jobs:
     - name: Configure rpmlint
       run: |
         cat > ~/.rpmlintrc <<'EOF'
+        addFilter("E: no-signature")
         addFilter("E: no-packager-tag")
         addFilter("W: no-manual-page-for-binary")
         addFilter("W: invalid-license")

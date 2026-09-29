@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30.5)
 
 project(ft_ping
-    VERSION 1.0.12
+    VERSION 1.0.13
     LANGUAGES C
 )
 
@@ -43,6 +43,20 @@ endif()
 
 include(GNUInstallDirs)
 
+add_custom_command(
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/changelog.gz"
+    COMMAND gzip -cn9 "${CMAKE_CURRENT_SOURCE_DIR}/changelog" > "${CMAKE_CURRENT_BINARY_DIR}/changelog.gz"
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/changelog"
+    COMMENT "Compressing changelog"
+)
+
+add_custom_target(changelog ALL DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/changelog.gz")
+
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/changelog.gz"
+    DESTINATION "${CMAKE_INSTALL_DOCDIR}"
+)
+
 install(TARGETS ft_ping
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 )
@@ -56,11 +70,13 @@ install(FILES
     DESTINATION "${CMAKE_INSTALL_DATADIR}/ft_ping"
 )
 
-if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-    install(FILES LICENSE
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/ft-ping"
-    )
-endif()
+install(FILES LICENSE DESTINATION "${CMAKE_INSTALL_DOCDIR}" RENAME copyright)
+
+# if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+#     install(FILES LICENSE
+#         DESTINATION "${CMAKE_INSTALL_DATADIR}/doc/ft-ping"
+#     )
+# endif()
 
 set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
     "/usr/share/man"
@@ -71,16 +87,21 @@ set(CPACK_PACKAGE_NAME "ft-ping")
 set(CPACK_PACKAGE_VENDOR "ft_ping project")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Simple ping implementation")
 set(CPACK_RPM_PACKAGE_DESCRIPTION "ft_ping is a simple implementation of the ping utility.\nIt sends ICMP echo requests and measures response time.")
-set(CPACK_PACKAGE_CONTACT "katezaytsewa@gmail.com")
+set(CPACK_PACKAGE_CONTACT "KateZz <katezaytsewa@gmail.com>")
 set(CPACK_RPM_PACKAGE_PACKAGER "Kate Zz <katezaytsewa@gmail.com>")
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set(CPACK_GENERATOR "DEB;RPM")
 
+set(CPACK_DEBIAN_PACKAGE_DESCRIPTION "ft_ping is a simple implementation of the ping utility.
+It sends ICMP echo requests and measures response time.
+This package provides the command-line tool for network diagnostics.")
 set(CPACK_DEBIAN_PACKAGE_MAINTAINER "ft_ping maintainer")
 set(CPACK_DEBIAN_PACKAGE_SECTION "net")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://example.com/ft_ping")
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.34)")
 
 set(CPACK_RPM_PACKAGE_LICENSE "Apache")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/Internet")
