@@ -41,7 +41,7 @@ jobs:
       uses: dante-signal31/rpmsign@v1.0.3
       with:
         gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-        gpg_private_key_password: ${{ secrets.GPG_PASSPHRASE }}
+        # gpg_private_key_password: ${{ secrets.GPG_PASSPHRASE }}
         gpg_name: "KateZz <katezaytsewa@gmail.com>"
         rpm_folder: build/
         output_folder: signed/
