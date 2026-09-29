@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30.5)
 
 project(ft_ping
-    VERSION 1.0.9
+    VERSION 1.0.12
     LANGUAGES C
 )
 

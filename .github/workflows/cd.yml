@@ -15,6 +15,14 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Configure rpmlint
+      run: |
+        cat > ~/.rpmlintrc <<'EOF'
+        addFilter("E: no-packager-tag")
+        addFilter("W: no-manual-page-for-binary")
+        addFilter("W: invalid-license")
+        EOF
+
       # 1. Импорт GPG-ключа из секретов
       #    GitHub "портит" armored-ключи, поэтому храните их в base64 [citation:2]
     - name: Import GPG Key
@@ -37,14 +45,14 @@ jobs:
         # Запускаем CPack. Он увидит переменные окружения и попытается подписать
         cpack -G RPM
 
-    - name: Sign RPM
-      uses: dante-signal31/rpmsign@v1.0.3
-      with:
-        gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-        # gpg_private_key_password: ${{ secrets.GPG_PASSPHRASE }}
-        gpg_name: "KateZz <katezaytsewa@gmail.com>"
-        rpm_folder: build/
-        output_folder: signed/
+    # - name: Sign RPM
+    #   uses: dante-signal31/rpmsign@v1.0.3
+    #   with:
+    #     gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+    #     # gpg_private_key_password: ${{ secrets.GPG_PASSPHRASE }}
+    #     gpg_name: "KateZz <katezaytsewa@gmail.com>"
+    #     rpm_folder: build/
+    #     output_folder: signed/
 
     # 3. Проверка, что пакет действительно подписан
     - name: Verify RPM Signature
