@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30.5)
 
 project(ft_ping
-    VERSION 1.0.8
+    VERSION 1.0.9
     LANGUAGES C
 )
 
@@ -62,6 +62,11 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
     )
 endif()
 
+set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
+    "/usr/share/man"
+    "/usr/share/man/man1"
+)
+
 set(CPACK_PACKAGE_NAME "ft-ping")
 set(CPACK_PACKAGE_VENDOR "ft_ping project")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Simple ping implementation")
@@ -77,7 +82,7 @@ set(CPACK_DEBIAN_PACKAGE_SECTION "net")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://example.com/ft_ping")
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 
-set(CPACK_RPM_PACKAGE_LICENSE "Apache License")
+set(CPACK_RPM_PACKAGE_LICENSE "Apache")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/Internet")
 set(CPACK_RPM_PACKAGE_URL "https://example.com/ft_ping")
 set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
