@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30.5)
 
 project(ft_ping
-    VERSION 1.0.6
+    VERSION 1.0.8
     LANGUAGES C
 )
 
@@ -47,7 +47,7 @@ install(TARGETS ft_ping
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 )
 
-install(FILES man/ft_ping.1 DESTINATION "${CMAKE_INSTALL_DATADIR}/man1")
+install(FILES man/ft_ping.1 TYPE MAN)
 
 install(FILES
     files/checksum.png
@@ -77,7 +77,7 @@ set(CPACK_DEBIAN_PACKAGE_SECTION "net")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://example.com/ft_ping")
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 
-set(CPACK_RPM_PACKAGE_LICENSE "ASL 2.0")
+set(CPACK_RPM_PACKAGE_LICENSE "Apache License")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/Internet")
 set(CPACK_RPM_PACKAGE_URL "https://example.com/ft_ping")
 set(CPACK_RPM_FILE_NAME "RPM-DEFAULT")
