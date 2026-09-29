@@ -15,17 +15,57 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Configure CMake
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+      # 1. Импорт GPG-ключа из секретов
+      #    GitHub "портит" armored-ключи, поэтому храните их в base64 [citation:2]
+    - name: Import GPG Key
+      run: |
+        echo "${{ secrets.GPG_PRIVATE_KEY_BASE64 }}" | base64 --decode | gpg --batch --import
+        # Также импортируем публичный ключ в RPM, чтобы можно было проверить подпись
+        gpg --export -a > pubkey
+        sudo rpm --import pubkey
 
-    - name: Build
-      run: cmake --build build --parallel
+    # 2. Сборка и генерация RPM с подписью
+    - name: Configure and Build
+      env:
+        # Передаём секреты в переменные окружения, которые ждёт CMake
+        RPM_GPG_KEY_ID: ${{ secrets.GPG_KEY_ID }}
+        RPM_GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --parallel
+        cd build
+        # Запускаем CPack. Он увидит переменные окружения и попытается подписать
+        cpack -G RPM
+
+    # 3. Проверка, что пакет действительно подписан
+    - name: Verify RPM Signature
+      run: |
+        rpm_file=$(find build -name "*.rpm" | head -n 1)
+        if rpm -K "$rpm_file" | grep -q "digests signatures OK"; then
+          echo "✅ RPM подписан успешно"
+        else
+          echo "❌ Ошибка: RPM не подписан"
+          exit 1
+        fi
+
+    # 4. Загрузка артефакта (опционально)
+    - name: Upload RPM
+      uses: actions/upload-artifact@v4
+      with:
+        name: signed-rpm
+        path: build/*.rpm
+
+    # - name: Configure CMake
+    #   run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+
+    # - name: Build
+    #   run: cmake --build build --parallel
 
     - name: Package (опционально)
       run: |
         cd build
         cpack -G DEB # Если у вас настроен CPack
-        cpack -G RPM
+        # cpack -G RPM
 
     - name: Upload Release Assets
       uses: softprops/action-gh-release@v2
