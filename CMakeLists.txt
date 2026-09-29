@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.30.5)
 
 project(ft-ping
-    VERSION 1.0.14
+    VERSION 1.0.15
     LANGUAGES C
 )
 
@@ -61,7 +61,8 @@ install(TARGETS ft-ping
     RUNTIME DESTINATION "${CMAKE_INSTALL_BINDIR}"
 )
 
-install(FILES man/ft-ping.1 DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
+#install(FILES man/ft-ping.1 DESTINATION "${CMAKE_INSTALL_MANDIR}/man1")
+install(FILES man/ft-ping.1 TYPE MAN)
 
 install(FILES
     files/checksum.png

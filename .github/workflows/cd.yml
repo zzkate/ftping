@@ -95,4 +95,4 @@ jobs:
         files: |
           build/*.deb
           build/*.rpm
-          build/bin/ft_ping
+          build/bin/ft-ping
